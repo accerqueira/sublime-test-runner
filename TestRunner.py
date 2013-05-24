@@ -6,6 +6,7 @@ import traceback
 import time
 import re
 import parser
+from decorators import throttle
 
 import sublime, sublime_plugin
 
@@ -51,7 +52,6 @@ class TestRunner():
                 return
 
         self.worker = TestRunnerWorker(view, working_directory, command)
-
 
 
 class TestRunnerWorker(threading.Thread):
@@ -155,6 +155,7 @@ class TestRunnerWorker(threading.Thread):
     def stderr_line(self, line):
         sys.stdout.write('STDERR: {line}'.format(line=line))
 
+    @throttle(0.05)
     def update_status(self):
         if self.result['total'] > 0:
             parts = [ '{executed}/{total} {status}' ]
@@ -167,8 +168,15 @@ class TestRunnerWorker(threading.Thread):
             if self.result[status] > 0:
                 parts.append('{{{status}}} {status}'.format(status=status))
 
+        spinner = settings.get('progress_spinner', '-\|/')
+        ticks = int((time.time() - self.start_time)  * 5)
+
+        message = '[ '+ ' | '.join(parts) +' ]'
+        if self.result['status'] == 'running':
+            message = spinner[ticks % len(spinner)] +' '+ message
+
         self.view.set_status('Test Runner', 
-            ('[ '+ ' | '.join(parts) +' ]').format(
+            message.format(
                 status = self.result['status'],
                 passed = self.result['passed'], 
                 failed = self.result['failed'], 
@@ -177,6 +185,9 @@ class TestRunnerWorker(threading.Thread):
                 executed = self.result['executed'], 
                 missing = self.result['missing'], 
                 total = self.result['total']))
+
+        if self.is_alive():
+            sublime.set_timeout(self.update_status, 100)
 
     def update_panel(self):
         window = sublime.active_window() # self.view.window() would be None if self.view is not active
@@ -208,7 +219,6 @@ class TestRunnerWorker(threading.Thread):
             self.stop()
         else:
             sublime.set_timeout(self.check_timeout, 500)
-
 
 
 class PostSaveListener(sublime_plugin.EventListener):
