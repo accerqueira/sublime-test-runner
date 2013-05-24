@@ -76,10 +76,10 @@ class TestRunnerWorker(threading.Thread):
 
         threading.Thread.__init__(self)
         self.start()
-        self.check_timeout()
 
     def run(self):
         try:
+            self.check_timeout()
             self.update_status()
             self.update_panel()
 
@@ -99,11 +99,11 @@ class TestRunnerWorker(threading.Thread):
             #print('Tests completed!')
 
         except RuntimeError, err:
-            print 'Unexpected error running tests:', sys.exc_info()[0], str(err)
-            traceback.print_tb(sys.last_traceback)
+            print 'Unexpected error running tests:'
+            traceback.print_exc()
         except Exception, err:
-            print 'Unexpected error running tests:', sys.exc_info()[0], str(err)
-            traceback.print_tb(sys.last_traceback)
+            print 'Unexpected error running tests:'
+            traceback.print_exc()
 
     def stop(self):
         if self.process and self.process.poll() is None:
@@ -116,15 +116,15 @@ class TestRunnerWorker(threading.Thread):
     def tests_planned(self, start, end):
         self.result['total'] = end
 
-        sublime.set_timeout(self.update_status, 50)
+        self.update_status()
 
     def tests_completed(self):
         self.result['missing'] = self.result['total'] - self.result['executed']
         self.result['total'] = self.result['executed']
         self.result['status'] = 'executed'
 
-        sublime.set_timeout(self.update_panel, 50)
-        sublime.set_timeout(self.update_status, 50)
+        self.update_panel()
+        self.update_status()
 
     def test_case(self, status, number, description, directive):
         if status:
@@ -146,8 +146,8 @@ class TestRunnerWorker(threading.Thread):
             number = number,
             description = description)
 
-        sublime.set_timeout(self.update_status, 50)
-        sublime.set_timeout(self.update_panel, 50)
+        self.update_status()
+        self.update_panel()
 
     def stdout_line(self, line):
         sys.stdout.write('STDOUT: {line}'.format(line=line))
@@ -155,7 +155,7 @@ class TestRunnerWorker(threading.Thread):
     def stderr_line(self, line):
         sys.stdout.write('STDERR: {line}'.format(line=line))
 
-    @throttle(0.05)
+    @throttle(1 / 25)
     def update_status(self):
         if self.result['total'] > 0:
             parts = [ '{executed}/{total} {status}' ]
@@ -187,8 +187,9 @@ class TestRunnerWorker(threading.Thread):
                 total = self.result['total']))
 
         if self.is_alive():
-            sublime.set_timeout(self.update_status, 100)
+            self.update_status()
 
+    @throttle(0.1)
     def update_panel(self):
         window = sublime.active_window() # self.view.window() would be None if self.view is not active
         if window is None:
@@ -210,15 +211,17 @@ class TestRunnerWorker(threading.Thread):
         elif self.result['status'] == 'executed':
             window.run_command('hide_panel', {'panel': 'output.test_runner'})
 
-    def check_timeout(self):
-        if not self.is_alive():
-            return
+        if self.is_alive():
+            self.update_panel()
 
+    @throttle(0.5)
+    def check_timeout(self):
         current_time = time.time()
         if current_time > self.start_time + self.timeout:
             self.stop()
-        else:
-            sublime.set_timeout(self.check_timeout, 500)
+
+        if self.is_alive():
+            self.check_timeout()
 
 
 class PostSaveListener(sublime_plugin.EventListener):
