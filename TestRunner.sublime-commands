@@ -1,0 +1,10 @@
+[
+    {
+        "caption": "Test Runner: Run tests",
+        "command": "run_tests"
+    },
+    {
+        "caption": "Test Runner: Run tests with coverage",
+        "command": "run_tests", "args": {"with_coverage": true}
+    }
+]
