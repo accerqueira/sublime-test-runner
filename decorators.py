@@ -29,14 +29,14 @@ class LazyDecorator():
         elapsed = curr_time - self.last_time
 
         if elapsed < self.seconds:
-            wait_time = int(1000 * (self.seconds - elapsed))
+            wait_ms = int(1000 * (self.seconds - elapsed))
         else:
-            wait_time = 0
+            wait_ms = 0
 
         try:
             (fn, params) = self.queue.pop(0)
             self.processing_queue = True
-            sublime.set_timeout(lambda: self.call_now(fn, *params), wait_time)
+            sublime.set_timeout(lambda: self.call_now(fn, *params), wait_ms)
         except IndexError:
             self.processing_queue = False
 
