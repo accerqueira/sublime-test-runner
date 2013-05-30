@@ -1,16 +1,37 @@
-import os
-import sys
+import sys, os.path
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+
 import threading
 import subprocess
 import traceback
 import time
 import re
-import parser
+import parsers
 from decorators import throttle
 
 import sublime, sublime_plugin
 
-settings = sublime.load_settings('TestRunner.sublime-settings')
+
+class Settings():
+    def __init__(self):
+        self.s = None
+
+    def load(self):
+        if self.s is None:
+            self.s = sublime.load_settings('TestRunner.sublime-settings')        
+
+    def get(self, key, default=None):
+        self.load()
+
+        return self.s.get(key, default)
+
+    def set(self, key, value):
+        self.load()
+
+        return self.s.set(key)
+
+settings = Settings()
+
 
 def project_directory(path):
     path = os.path.normpath(os.path.dirname(path))
@@ -85,24 +106,24 @@ class TestRunnerWorker(threading.Thread):
 
             self.process = subprocess.Popen(self.command, shell=True, cwd=self.working_directory, universal_newlines=True, bufsize=1, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
-            tapParser = parser.TapParser(self.process.stdout)
+            tapParser = parsers.TapParser(self.process.stdout)
             #tapParser.signal['line'].add(self.stdout_line)
             tapParser.signal['tests_planned'].add(self.tests_planned)
             tapParser.signal['test_case'].add(self.test_case)
             tapParser.signal['tests_completed'].add(self.tests_completed)
             tapParser.parse()
 
-            #lineParser = parser.LineParser(self.process.stderr)
+            #lineParser = parsers.LineParser(self.process.stderr)
             #lineParser.signal['line'].add(self.stderr_line)
             #lineParser.parse()
 
             #print('Tests completed!')
 
-        except RuntimeError, err:
-            print 'Unexpected error running tests:'
+        except RuntimeError:
+            print('Unexpected error running tests:')
             traceback.print_exc()
-        except Exception, err:
-            print 'Unexpected error running tests:'
+        except Exception:
+            print('Unexpected error running tests:')
             traceback.print_exc()
 
     def stop(self):
@@ -196,15 +217,12 @@ class TestRunnerWorker(threading.Thread):
             sublime.active_window().run_command('hide_panel', {'panel': 'output.test_runner'})
             return
 
-        out = window.get_output_panel('test_runner')
-        edit = out.begin_edit()
+        try:
+            result_panel = window.create_output_panel('test_runner')
+        except:
+            result_panel = window.get_output_panel('test_runner')
 
-        out.erase(edit, sublime.Region(0, out.size()))
-
-        out.insert(edit, out.size(), self.result['message'])
-
-        out.show(out.size())
-        out.end_edit(edit)
+        result_panel.run_command('update_panel', { 'message': self.result['message'] })
 
         if self.result['failed'] > 0 or settings.get('show_panel_default', False):
             window.run_command('show_panel', {'panel': 'output.test_runner'})
@@ -222,6 +240,18 @@ class TestRunnerWorker(threading.Thread):
 
         if self.is_alive():
             self.check_timeout()
+
+
+class UpdatePanelCommand(sublime_plugin.TextCommand):
+    description = 'Updates panel with test results.'
+
+    def run(self, edit, message, *args, **kwargs):
+        #print('UpdatePanelCommand.run', args, kwargs)
+
+        self.view.erase(edit, sublime.Region(0, self.view.size()))
+        self.view.insert(edit, self.view.size(), message)
+
+        self.view.show(self.view.size())
 
 
 class PostSaveListener(sublime_plugin.EventListener):
