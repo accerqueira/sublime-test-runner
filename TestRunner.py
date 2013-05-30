@@ -1,15 +1,16 @@
-import sys, os.path
+import sys
+import os.path
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 import threading
 import subprocess
 import traceback
 import time
-import re
 import parsers
 from decorators import throttle
 
-import sublime, sublime_plugin
+import sublime
+import sublime_plugin
 
 
 class Settings():
@@ -18,7 +19,7 @@ class Settings():
 
     def load(self):
         if self.s is None:
-            self.s = sublime.load_settings('TestRunner.sublime-settings')        
+            self.s = sublime.load_settings('TestRunner.sublime-settings')
 
     def get(self, key, default=None):
         self.load()
@@ -40,7 +41,9 @@ def project_directory(path):
 
     while path_parts:
         for spec_directory in spec_directories:
-            joined = os.path.normpath(os.path.sep.join(path_parts + [spec_directory]))
+            joined = os.path.normpath(
+                os.path.sep.join(path_parts + [spec_directory])
+            )
 
             if os.path.exists(joined) and os.path.isdir(joined):
                 return os.path.normpath(os.path.sep.join(path_parts))
@@ -64,6 +67,7 @@ class RunTestsCommand(sublime_plugin.TextCommand):
 
 class TestRunner():
     worker = None
+
     @classmethod
     def start(self, view, working_directory, command):
         if self.worker and self.worker.is_alive():
@@ -104,7 +108,15 @@ class TestRunnerWorker(threading.Thread):
             self.update_status()
             self.update_panel()
 
-            self.process = subprocess.Popen(self.command, shell=True, cwd=self.working_directory, universal_newlines=True, bufsize=1, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            self.process = subprocess.Popen(
+                self.command,
+                shell=True,
+                cwd=self.working_directory,
+                universal_newlines=True,
+                bufsize=1,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE
+            )
 
             tapParser = parsers.TapParser(self.process.stdout)
             #tapParser.signal['line'].add(self.stdout_line)
@@ -130,9 +142,6 @@ class TestRunnerWorker(threading.Thread):
         if self.process and self.process.poll() is None:
             self.process.terminate()
             self.process = None
-        #self.join(5)
-        #if self.is_alive():
-        #    print('Well, this is embarasing... A worker thread refuses to die.')
 
     def tests_planned(self, start, end):
         self.result['total'] = end
@@ -163,9 +172,10 @@ class TestRunnerWorker(threading.Thread):
         self.result['executed'] += 1
 
         self.result['message'] += '[{status}] {description}\n'.format(
-            status = status_message,
-            number = number,
-            description = description)
+            status=status_message,
+            number=number,
+            description=description
+        )
 
         self.update_status()
         self.update_panel()
@@ -179,42 +189,46 @@ class TestRunnerWorker(threading.Thread):
     @throttle(1 / 25)
     def update_status(self):
         if self.result['total'] > 0:
-            parts = [ '{executed}/{total} {status}' ]
+            parts = ['{executed}/{total} {status}']
         elif self.result['executed'] > 0:
-            parts = [ '{executed}/? {status}' ]
+            parts = ['{executed}/? {status}']
         else:
-            parts = [ '{status}' ]
+            parts = ['{status}']
 
         for status in ('passed', 'failed', 'missing', 'skipped', 'todo'):
             if self.result[status] > 0:
                 parts.append('{{{status}}} {status}'.format(status=status))
 
         spinner = settings.get('progress_spinner', '-\|/')
-        ticks = int((time.time() - self.start_time)  * 5)
+        ticks = int((time.time() - self.start_time) * 5)
 
-        message = '[ '+ ' | '.join(parts) +' ]'
+        message = '[ ' + ' | '.join(parts) + ' ]'
         if self.result['status'] == 'running':
-            message = spinner[ticks % len(spinner)] +' '+ message
+            message = spinner[ticks % len(spinner)] + ' ' + message
 
-        self.view.set_status('Test Runner', 
-            message.format(
-                status = self.result['status'],
-                passed = self.result['passed'], 
-                failed = self.result['failed'], 
-                skipped = self.result['skipped'], 
-                todo = self.result['todo'], 
-                executed = self.result['executed'], 
-                missing = self.result['missing'], 
-                total = self.result['total']))
+        self.view.set_status('Test Runner', message.format(
+            status=self.result['status'],
+            passed=self.result['passed'],
+            failed=self.result['failed'],
+            skipped=self.result['skipped'],
+            todo=self.result['todo'],
+            executed=self.result['executed'],
+            missing=self.result['missing'],
+            total=self.result['total'])
+        )
 
         if self.is_alive():
             self.update_status()
 
     @throttle(0.1)
     def update_panel(self):
-        window = sublime.active_window() # self.view.window() would be None if self.view is not active
+        window = sublime.active_window()
+        # self.view.window() would be None if self.view is not active
         if window is None:
-            sublime.active_window().run_command('hide_panel', {'panel': 'output.test_runner'})
+            sublime.active_window().run_command(
+                'hide_panel',
+                {'panel': 'output.test_runner'}
+            )
             return
 
         try:
@@ -222,9 +236,13 @@ class TestRunnerWorker(threading.Thread):
         except:
             result_panel = window.get_output_panel('test_runner')
 
-        result_panel.run_command('update_panel', { 'message': self.result['message'] })
+        result_panel.run_command(
+            'update_panel',
+            {'message': self.result['message']}
+        )
 
-        if self.result['failed'] > 0 or settings.get('show_panel_default', False):
+        if (self.result['failed'] > 0 or
+                settings.get('show_panel_default', False)):
             window.run_command('show_panel', {'panel': 'output.test_runner'})
         elif self.result['status'] == 'executed':
             window.run_command('hide_panel', {'panel': 'output.test_runner'})
@@ -255,7 +273,7 @@ class UpdatePanelCommand(sublime_plugin.TextCommand):
 
 
 class PostSaveListener(sublime_plugin.EventListener):
-    def on_post_save(self, view): # on_post_save_async?
+    def on_post_save(self, view):
         #print('PostSaveListener.on_post_save')
 
         if not settings.get('test_on_save', True):

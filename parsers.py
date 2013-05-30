@@ -1,5 +1,5 @@
 import re
-import time
+
 
 class TapParser():
     def __init__(self, source):
@@ -26,7 +26,6 @@ class TapParser():
         else:
             eof = True
 
-
         return (not eof)
 
     def parse(self):
@@ -38,12 +37,11 @@ class TapParser():
         while ok:
             test_case = self.parse_test_case()
             if test_case:
-                test_case_detail = self.parse_test_case_detail()
+                self.parse_test_case_detail()
             else:
                 ok = self.advance()
 
         self.signal['tests_completed'].dispatch()
-
 
     def skip_empty(self):
         regex = re.compile(r'^\s+$', re.X | re.I)
@@ -64,10 +62,10 @@ class TapParser():
             match = regex.match(self.current_line)
 
         if len(comment) > 0:
-            result = { 'comment': comment }
+            result = {'comment': comment}
             self.signal['comment'].dispatch(**result)
             return result
-    
+
     def parse_version(self):
         self.parse_comments()
 
@@ -82,7 +80,7 @@ class TapParser():
         else:
             version = 12
 
-        result = { 'version': version }
+        result = {'version': version}
         self.signal['version'].dispatch(**result)
         return result
 
@@ -102,7 +100,6 @@ class TapParser():
             }
             self.signal['tests_planned'].dispatch(**result)
             return result
-
 
     def parse_test_case(self):
         self.parse_comments()
@@ -128,7 +125,7 @@ class TapParser():
                 'number': int(match.group('number')),
                 'description': match.group('description'),
                 'directive': {
-                    'type': directive_type, 
+                    'type': directive_type,
                     'description': match.group('directive_description')
                 }
             }
@@ -151,7 +148,7 @@ class TapParser():
                 self.advance()
 
         if len(yaml) > 0:
-            result = { 'yaml': yaml }
+            result = {'yaml': yaml}
             self.signal['test_case_detail'].dispatch(**result)
             return result
 
@@ -180,7 +177,6 @@ class LineParser():
             pass
 
         self.signal['completed'].dispatch()
-
 
 
 class Signal(list):

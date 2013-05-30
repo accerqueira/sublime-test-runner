@@ -1,6 +1,7 @@
 import time
 import sublime
 
+
 class LazyDecorator():
     def __init__(self, seconds, limit):
         self.last_time = time.time() - seconds
@@ -40,6 +41,7 @@ class LazyDecorator():
         except IndexError:
             self.processing_queue = False
 
+
 class ThrottleDecorator(LazyDecorator):
     def __init__(self, seconds):
         LazyDecorator.__init__(self, seconds, 1)
@@ -49,6 +51,7 @@ def lazy(seconds, limit):
     """Lazy policy, will queue up to {limit} executions and wait {seconds} milliseconds for each one."""
     decorator = LazyDecorator(seconds, limit)
     return decorator.call
+
 
 def throttle(seconds):
     """Throttling policy, will only be executed once per {seconds} milliseconds"""
