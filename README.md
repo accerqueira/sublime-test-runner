@@ -3,6 +3,9 @@ Sublime Test Runner
 
 Installation
 ------------
+**The easiest way to install is via the [Sublime Package Control](http://wbond.net/sublime_packages/package_control) plugin.**
+Bring down your Command Palette (``Command+Shift+P`` on OS X, ``Control+Shift+P`` on Linux/Windows), open "Package Control: Install Package" (in your Command Palette) and search for "Test Runner". That's it!
+
 To install it **manually without Git:** Download the latest source from [GitHub](http://github.com/accerqueira/sublime-test-runner), copy the whole directory into the Packages directory and rename it to "Test Runner".
 
 To install it **manually with Git:** Clone the repository in your Sublime Text 2 Packages directory:
