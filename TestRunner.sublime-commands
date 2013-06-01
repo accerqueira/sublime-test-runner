@@ -6,5 +6,9 @@
     {
         "caption": "Test Runner: Run tests with coverage",
         "command": "run_tests", "args": {"with_coverage": true}
+    },
+    {
+        "caption": "Test Runner: Show output panel",
+        "command": "show_panel", "args": {"panel": "output.test_runner"}
     }
 ]
