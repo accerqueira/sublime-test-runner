@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>name</key>
+	<string>TestRunner</string>
+	<key>patterns</key>
+	<array>
+		<dict>
+			<key>captures</key>
+			<dict>
+				<key>1</key>
+				<dict>
+					<key>name</key>
+					<string>test.status.pass</string>
+				</dict>
+				<key>2</key>
+				<dict>
+					<key>name</key>
+					<string>test.description.pass</string>
+				</dict>
+			</dict>
+			<key>match</key>
+			<string>(?i)^\[(PASS)\]\s*(.*)$\n?</string>
+			<key>name</key>
+			<string>test.result.pass</string>
+			<key>comment</key>
+			<string>Test case result marked as passed</string>
+		</dict>
+		<dict>
+			<key>captures</key>
+			<dict>
+				<key>1</key>
+				<dict>
+					<key>name</key>
+					<string>test.status.fail</string>
+				</dict>
+				<key>2</key>
+				<dict>
+					<key>name</key>
+					<string>test.description.fail</string>
+				</dict>
+			</dict>
+			<key>match</key>
+			<string>(?i)^\[(FAIL)\]\s*(.*)$\n?</string>
+			<key>name</key>
+			<string>test.result.fail</string>
+			<key>comment</key>
+			<string>Test case result marked as failed</string>
+		</dict>
+		<dict>
+			<key>captures</key>
+			<dict>
+				<key>1</key>
+				<dict>
+					<key>name</key>
+					<string>test.status.skip</string>
+				</dict>
+				<key>2</key>
+				<dict>
+					<key>name</key>
+					<string>test.description.skip</string>
+				</dict>
+			</dict>
+			<key>match</key>
+			<string>(?i)^\[(SKIP)\]\s*(.*)$\n?</string>
+			<key>name</key>
+			<string>test.result.skip</string>
+			<key>comment</key>
+			<string>Test case result marked as skipped</string>
+		</dict>
+		<dict>
+			<key>captures</key>
+			<dict>
+				<key>1</key>
+				<dict>
+					<key>name</key>
+					<string>test.status.todo</string>
+				</dict>
+				<key>2</key>
+				<dict>
+					<key>name</key>
+					<string>test.description.todo</string>
+				</dict>
+			</dict>
+			<key>match</key>
+			<string>(?i)^\[(TODO)\]\s*(.*)$\n?</string>
+			<key>name</key>
+			<string>test.result.todo</string>
+			<key>comment</key>
+			<string>Test case result marked as todo</string>
+		</dict>
+	</array>
+	<key>scopeName</key>
+	<string>text.test_runner</string>
+	<key>uuid</key>
+	<string>3a2408a1-9e99-4dc9-8dec-c8b34fa36863</string>
+</dict>
+</plist>

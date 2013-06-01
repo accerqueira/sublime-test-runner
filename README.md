@@ -37,3 +37,74 @@ Usage
 -----
 
 Test Runner will, by default, run ``make test REPORTER=tap`` whenever you save a file. You can also bring down the Command Palette and look for "Test Runner" available commands.
+
+For test result coloring, you can add something like this to your color scheme file:
+
+```xml
+    <dict>
+        <key>name</key>
+        <string>Test PASS</string>
+        <key>scope</key>
+        <string>test.status.pass</string>
+        <key>settings</key>
+        <dict>
+            <key>foreground</key>
+            <string>#33FF33</string>
+        </dict>
+    </dict>
+    <dict>
+        <key>name</key>
+        <string>Test FAIL</string>
+        <key>scope</key>
+        <string>test.status.fail</string>
+        <key>settings</key>
+        <dict>
+            <key>foreground</key>
+            <string>#FF3333</string>
+        </dict>
+    </dict>
+    <dict>
+        <key>name</key>
+        <string>Test SKIP</string>
+        <key>scope</key>
+        <string>test.status.skip</string>
+        <key>settings</key>
+        <dict>
+            <key>foreground</key>
+            <string>#999999</string>
+        </dict>
+    </dict>
+    <dict>
+        <key>name</key>
+        <string>Test TODO</string>
+        <key>scope</key>
+        <string>test.status.todo</string>
+        <key>settings</key>
+        <dict>
+            <key>foreground</key>
+            <string>#FFFF33</string>
+        </dict>
+    </dict>
+```
+
+For more customization, the following scopes are available...
+
+ - ...for tests marked as passed:
+    - ``test.result.pass``  
+    - ``test.status.pass``  
+    - ``test.description.pass``
+
+ - ...for tests marked as failed:
+    - ``test.result.fail``  
+    - ``test.status.fail``  
+    - ``test.description.fail``
+
+ - ...for tests marked as skipped:
+    - ``test.result.skip``  
+    - ``test.status.skip``  
+    - ``test.description.skip``
+
+ - ...for tests marked as todo:
+    - ``test.result.todo``  
+    - ``test.status.todo``  
+    - ``test.description.todo``

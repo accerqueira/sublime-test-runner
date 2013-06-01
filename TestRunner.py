@@ -159,16 +159,16 @@ class TestRunnerWorker(threading.Thread):
     def test_case(self, status, number, description, directive):
         if status:
             self.result['passed'] += 1
-            status_message = 'PASSED'
+            status_message = 'PASS'
         elif directive['type'] == 'TODO':
             self.result['todo'] += 1
             status_message = 'TODO'
         elif directive['type'] == 'SKIP':
             self.result['skipped'] += 1
-            status_message = 'SKIPPED'
+            status_message = 'SKIP'
         else:
             self.result['failed'] += 1
-            status_message = 'FAILED'
+            status_message = 'FAIL'
         self.result['executed'] += 1
 
         self.result['message'] += '[{status}] {description}\n'.format(
@@ -235,6 +235,8 @@ class TestRunnerWorker(threading.Thread):
             result_panel = window.create_output_panel('test_runner')
         except:
             result_panel = window.get_output_panel('test_runner')
+
+        result_panel.set_syntax_file('Packages/Test Runner/TestRunnerOutput.tmLanguage')
 
         result_panel.run_command(
             'update_panel',
