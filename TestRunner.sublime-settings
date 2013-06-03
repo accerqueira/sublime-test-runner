@@ -1,7 +1,7 @@
 {
     "test_command": "make test REPORTER=tap",
     "test_with_coverage_command": "make test-cov REPORTER=tap",
-    "test_with_coverage_default": true,
+    "test_with_coverage_default": false,
     "test_on_save": true,
     "test_override": true,
     "test_timeout": 60,
