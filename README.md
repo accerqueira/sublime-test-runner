@@ -1,6 +1,9 @@
 Sublime Test Runner
 ===================
 
+Runs tests on save, with status bar summary and details on output panel. It should work with any console/terminal runnable test framework which produces [TAP](http://testanything.org/) output.
+
+
 Installation
 ------------
 **The easiest way to install is via the [Sublime Package Control](http://wbond.net/sublime_packages/package_control) plugin.**
