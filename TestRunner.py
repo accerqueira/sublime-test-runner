@@ -223,13 +223,6 @@ class TestRunnerWorker(threading.Thread):
     @throttle(0.1)
     def update_panel(self):
         window = sublime.active_window()
-        # self.view.window() would be None if self.view is not active
-        if window is None:
-            sublime.active_window().run_command(
-                'hide_panel',
-                {'panel': 'output.test_runner'}
-            )
-            return
 
         try:
             result_panel = window.create_output_panel('test_runner')
