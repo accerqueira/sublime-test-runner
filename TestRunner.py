@@ -37,15 +37,15 @@ settings = Settings()
 def project_directory(path):
     path = os.path.normpath(os.path.dirname(path))
     path_parts = path.split(os.path.sep)
-    spec_directories = ['test', 'tests', 'spec', 'specs']
+    spec_filenames = settings.get('test_spec_filenames')
 
     while path_parts:
-        for spec_directory in spec_directories:
+        for spec_directory in spec_filenames:
             joined = os.path.normpath(
                 os.path.sep.join(path_parts + [spec_directory])
             )
 
-            if os.path.exists(joined) and os.path.isdir(joined):
+            if os.path.exists(joined):
                 return os.path.normpath(os.path.sep.join(path_parts))
 
         path_parts.pop()

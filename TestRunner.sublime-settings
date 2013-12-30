@@ -5,5 +5,6 @@
     "test_on_save": true,
     "test_override": true,
     "test_timeout": 60,
+    "test_spec_filenames": ["test", "tests", "spec", "specs", "Makefile"],
     "show_panel_default": false
 }
