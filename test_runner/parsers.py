@@ -1,5 +1,11 @@
 import re
 
+import logging
+import logging.handlers
+
+logger = logging.getLogger(__name__)
+
+logger.debug('> loading python file "%s"', __name__)
 
 class TapParser():
     def __init__(self, source):
@@ -189,3 +195,5 @@ class Signal(list):
     def dispatch(self, *args, **kwargs):
         for listener in self:
             listener(*args, **kwargs)
+
+logger.debug('< loading python file "%s"', __name__)

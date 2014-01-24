@@ -1,6 +1,12 @@
 import time
 import sublime
 
+import logging
+import logging.handlers
+
+logger = logging.getLogger(__name__)
+
+logger.debug('> loading python file "%s"', __name__)
 
 class LazyDecorator():
     def __init__(self, seconds, limit):
@@ -57,3 +63,5 @@ def throttle(seconds):
     """Throttling policy, will only be executed once per {seconds} milliseconds"""
     decorator = ThrottleDecorator(seconds)
     return decorator.call
+
+logger.debug('< loading python file "%s"', __name__)
