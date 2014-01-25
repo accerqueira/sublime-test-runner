@@ -35,14 +35,7 @@ except (ValueError):
 
 
 def plugin_loaded():
-    global logger
-
-    setup_settings()
     setup_logger()
-
-def setup_settings():
-    global settings
-    settings = Settings()
 
 def setup_logger():
     global logger
@@ -377,6 +370,8 @@ class PostSaveListener(sublime_plugin.EventListener):
 
 logger.debug('< loading python file "%s"', __name__)
 
+
+settings = Settings()
 
 st_version = 2
 
