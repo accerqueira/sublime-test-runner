@@ -14,13 +14,6 @@ import logging.handlers
 
 logger = logging.getLogger('test_runner')
 
-logger.handlers = []
-
-formatter = logging.Formatter('[%(asctime)s] %(levelname)s %(message)s')
-hdlr = logging.handlers.TimedRotatingFileHandler(__name__ + '.log', interval=1, backupCount=4)
-hdlr.setFormatter(formatter)
-logger.addHandler(hdlr)
-
 logger.debug('> loading python file "%s"', __name__)
 
 
@@ -35,6 +28,12 @@ except (ValueError):
 
 
 def plugin_loaded():
+    global package_name
+    if st_version == 3:
+        package_name, _ = __name__.split('.')
+    elif st_version == 2:
+        package_name = os.path.basename(os.getcwd())
+
     setup_logger()
 
 def setup_logger():
@@ -49,6 +48,14 @@ def setup_logger():
     }
 
     settings.clear_on_change('log_level')
+
+    logger.handlers = []
+
+    formatter = logging.Formatter('[%(asctime)s] %(levelname)s %(message)s')
+    log_path = os.path.join(sublime.installed_packages_path(), package_name + '.log')
+    hdlr = logging.handlers.TimedRotatingFileHandler(log_path, interval=1, backupCount=4)
+    hdlr.setFormatter(formatter)
+    logger.addHandler(hdlr)
 
     log_level = settings.get('log_level', 'WARNING').upper()
     logger.setLevel(log_levels[log_level])
@@ -372,8 +379,8 @@ logger.debug('< loading python file "%s"', __name__)
 
 
 settings = Settings()
-
 st_version = 2
+package_name = 'Test Runner'
 
 # Warn about out-dated versions of ST3
 if sublime.version() == '':
